@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Application",
+    "\\bin",
+    "\\Controllers",
+    "\\Domain",
+    "\\Domain\\Common",
+    "\\Domain\\Entities",
+    "\\Migrations",
+    "\\obj"
+  ],
+  "SelectedNode": "\\obj\\Debug",
+  "PreviewInSolutionExplorer": false
+}
