@@ -5,14 +5,9 @@ using Sistema_Gestion_Restaurante.Infrastructure.Persistence;
 
 namespace Sistema_Gestion_Restaurante.Infrastructure.Repositories
 {
-    public class PlatoRepository : IPlatoRepository
+    public class PlatoRepository(RestauranteDbContext context) : IPlatoRepository
     {
-        private readonly RestauranteDbContext _context;
-
-        public PlatoRepository(RestauranteDbContext context)
-        {
-            _context = context;
-        }
+        private readonly RestauranteDbContext _context = context;
 
         public async Task<IReadOnlyList<Plato>> GetAllAsync(bool includeDeleted = false, CancellationToken ct = default)
         {
@@ -20,6 +15,12 @@ namespace Sistema_Gestion_Restaurante.Infrastructure.Repositories
         }
 
         public async Task<Plato?> GetByIdAsync(Guid id, bool includeDeleted = false, CancellationToken ct = default)
+        {
+              
+            return await _context.Platos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ct);
+        }
+
+        public async Task<Plato?> GetByIdByUpdateAsync(Guid id, bool includeDeleted = false, CancellationToken ct = default)
         {
             return await _context.Platos.FirstOrDefaultAsync(x => x.Id == id, ct);
         }

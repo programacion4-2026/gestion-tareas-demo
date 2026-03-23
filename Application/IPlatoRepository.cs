@@ -7,6 +7,7 @@ namespace Sistema_Gestion_Restaurante.Application.Repositories
         Task<IReadOnlyList<Plato>> GetAllAsync(bool includeDeleted = false, CancellationToken ct = default);
 
         Task<Plato?> GetByIdAsync(Guid id, bool includeDeleted = false, CancellationToken ct = default);
+        Task<Plato?> GetByIdByUpdateAsync(Guid id, bool includeDeleted = false, CancellationToken ct = default);
 
         Task AddAsync(Plato plato, CancellationToken ct = default);
 
