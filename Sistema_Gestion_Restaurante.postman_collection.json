@@ -1,0 +1,365 @@
+{
+  "info": {
+    "name": "Sistema Gestión Restaurante",
+    "description": "Colección de APIs para el Sistema de Gestión de Restaurante - Historias de Usuario 4-7",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🏪 SETUP - Pre-requisitos",
+      "item": [
+        {
+          "name": "Instrucciones de Configuración",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/swagger/index.html",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["swagger", "index.html"]
+            },
+            "description": "1. Ejecuta la migración: dotnet ef database update\n2. Inicia la aplicación: dotnet run\n3. Ve a https://localhost:7101/swagger para ver la documentación automática"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 HU4 - Crear Orden",
+      "item": [
+        {
+          "name": "Crear una nueva orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('ordenId', jsonData.id);",
+                  "    pm.test('Orden creada exitosamente', function () {",
+                  "        pm.expect(pm.response.code).to.equal(201);",
+                  "        pm.expect(jsonData.id).to.not.be.empty;",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Error al crear orden', function () {",
+                  "        pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroMesa\": \"5\"\n}"
+            },
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes"]
+            },
+            "description": "HU4: Crear una nueva orden\n\nEl ID de la orden se guardará automáticamente en la variable de entorno 'ordenId' para usar en las siguientes solicitudes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🍽️ HU5 - Agregar Platos a la Orden",
+      "item": [
+        {
+          "name": "IMPORTANTE - Obtener IDs de Platos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/platos",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "platos"]
+            },
+            "description": "ANTES de agregar platos a una orden, necesitas los IDs de los platos.\n\nNota: El controlador de platos aún no está implementado. Para pruebas, puedes:\n1. Insertar platos manualmente en la base de datos\n2. O usar IDs temporales (GUIDs válidos) para pruebas"
+          }
+        },
+        {
+          "name": "Agregar plato a la orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.test('Plato agregado a la orden', function () {",
+                  "        pm.expect(pm.response.code).to.equal(201);",
+                  "        pm.expect(jsonData.id).to.not.be.empty;",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Ver respuesta de error', function () {",
+                  "        console.log(pm.response.text());",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"platoId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"cantidad\": 2,\n  \"precioUnitario\": 25.50\n}"
+            },
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles"]
+            },
+            "description": "HU5: Agregar un plato a la orden\n\nReemplaza:\n- {{ordenId}} - ID de la orden (se obtiene automáticamente al crear orden)\n- platoId - ID del plato que deseas agregar\n- cantidad - Cantidad de platos\n- precioUnitario - Precio por plato"
+          }
+        },
+        {
+          "name": "Agregar otro plato a la orden",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"platoId\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"cantidad\": 1,\n  \"precioUnitario\": 45.00\n}"
+            },
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles"]
+            },
+            "description": "Agrega otro plato a la misma orden"
+          }
+        },
+        {
+          "name": "Listar todos los detalles de la orden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles"]
+            },
+            "description": "Obtiene todos los platos agregados a una orden"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💰 HU6 - Calcular Total Automáticamente",
+      "item": [
+        {
+          "name": "Obtener total de la orden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/total",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles", "total"]
+            },
+            "description": "HU6: Calcula automáticamente el total de la orden sumando todos los subtotales (cantidad × precio) de los platos agregados."
+          }
+        },
+        {
+          "name": "Obtener cantidad total de items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/items-count",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles", "items-count"]
+            },
+            "description": "Obtiene la cantidad total de items (suma de cantidades) en la orden"
+          }
+        }
+      ]
+    },
+    {
+      "name": "✅ HU7 - Cerrar/Completar Orden",
+      "item": [
+        {
+          "name": "Completar la orden",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Orden completada', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/completar",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "completar"]
+            },
+            "description": "HU7: Cierra/completa una orden\n\nCambia el estado de la orden a 'Completada'. Solo se pueden completar órdenes en estado 'Pendiente'."
+          }
+        },
+        {
+          "name": "Obtener información de la orden completada",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}"]
+            },
+            "description": "Verifica que la orden esté en estado 'Completada'"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Endpoints Adicionales",
+      "item": [
+        {
+          "name": "Obtener todas las órdenes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes"]
+            },
+            "description": "Obtiene el listado de todas las órdenes"
+          }
+        },
+        {
+          "name": "Filtrar órdenes por estado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/estado/Completada",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "estado", "Completada"]
+            },
+            "description": "Obtiene órdenes filtradas por estado\n\nEstados posibles:\n- Pendiente\n- Completada\n- Cancelada"
+          }
+        },
+        {
+          "name": "Cancelar una orden",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/cancelar",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "cancelar"]
+            },
+            "description": "Cancela una orden\n\nSolo se pueden cancelar órdenes en estado 'Pendiente'"
+          }
+        },
+        {
+          "name": "Actualizar un detalle (cantidad/precio)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cantidad\": 3,\n  \"precioUnitario\": 30.00\n}"
+            },
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles", "550e8400-e29b-41d4-a716-446655440000"]
+            },
+            "description": "Actualiza la cantidad y/o precio de un detalle específico"
+          }
+        },
+        {
+          "name": "Eliminar un detalle de la orden",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000",
+              "protocol": "https",
+              "host": ["localhost"],
+              "port": "7101",
+              "path": ["api", "ordenes", "{{ordenId}}", "detalles", "550e8400-e29b-41d4-a716-446655440000"]
+            },
+            "description": "Elimina un plato específico de la orden"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "ordenId",
+      "value": "",
+      "type": "string",
+      "description": "ID de la orden (se establece automáticamente al crear una orden)"
+    }
+  ]
+}

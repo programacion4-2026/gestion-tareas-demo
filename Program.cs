@@ -34,6 +34,32 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Aplicar migraciones automáticamente al iniciar
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<RestauranteDbContext>();
+    try
+    {
+        // En desarrollo, elimina y recrea la BD desde cero (EnsureDeleted().EnsureCreated())
+        // En producción, usa Migrate() para aplicar migraciones
+        if (app.Environment.IsDevelopment())
+        {
+            dbContext.Database.EnsureDeleted();  // Elimina si existe
+            dbContext.Database.EnsureCreated();  // Recrea con el esquema
+            Console.WriteLine("✓ Base de datos eliminada y recreada exitosamente");
+        }
+        else
+        {
+            dbContext.Database.Migrate();
+            Console.WriteLine("✓ Base de datos migrada exitosamente");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"✗ Error al preparar la base de datos: {ex.Message}");
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

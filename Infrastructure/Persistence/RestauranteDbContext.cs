@@ -15,23 +15,42 @@ namespace Sistema_Gestion_Restaurante.Infrastructure.Persistence
         public DbSet<Categoria> Categorias => Set<Categoria>();
         public DbSet<Orden> Ordenes => Set<Orden>();
         public DbSet<Detalle_orden> DetallesOrden => Set<Detalle_orden>();
-        public DbSet<Reporte_Ventas> ReportesVentas => Set<Reporte_Ventas>();
 
         // Este método es para configurar detalles especiales (como en la guía del profe)
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuración para que el precio funcione bien en SQLite
-            modelBuilder.Entity<Plato>(entity => {
+            // Configuración de Plato -> Categoria (N:1)
+            modelBuilder.Entity<Plato>(entity =>
+            {
+                entity.HasOne(p => p.Categoria)
+                    .WithMany(c => c.Platos)
+                    .HasForeignKey(p => p.CategoriaId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 entity.Property(p => p.Precio).HasConversion<double>();
             });
 
-            modelBuilder.Entity<Orden>(entity => {
+            // Configuración de Orden -> Detalle_Orden (1:N)
+            modelBuilder.Entity<Orden>(entity =>
+            {
+                entity.HasMany(o => o.DetallesOrden)
+                    .WithOne(d => d.Orden)
+                    .HasForeignKey(d => d.OrdenId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 entity.Property(o => o.Total).HasConversion<double>();
             });
 
-            modelBuilder.Entity<Detalle_orden>(entity => {
+            // Configuración de Detalle_Orden
+            modelBuilder.Entity<Detalle_orden>(entity =>
+            {
+                entity.HasOne(d => d.Plato)
+                    .WithMany(p => p.DetallesOrden)
+                    .HasForeignKey(d => d.PlatoId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
                 entity.Property(d => d.PrecioUnitario).HasConversion<double>();
             });
         }
