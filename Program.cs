@@ -9,7 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 0. Configurar la ruta base para buscar appsettings en la carpeta Config/
 var configPath = Path.Combine(Directory.GetCurrentDirectory(), "Config");
-builder.Configuration.SetBasePath(configPath);
+builder.Configuration.SetBasePath(configPath)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 // 1. Leer la cadena de conexión
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -40,19 +42,66 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<RestauranteDbContext>();
     try
     {
-        // En desarrollo, elimina y recrea la BD desde cero (EnsureDeleted().EnsureCreated())
-        // En producción, usa Migrate() para aplicar migraciones
+        Console.WriteLine("\n=== DIAGNÓSTICO DE BASE DE DATOS ===");
+        Console.WriteLine($"📍 Current Directory: {Directory.GetCurrentDirectory()}");
+        Console.WriteLine($"📍 Connection String: {connectionString}");
+        
+        var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Database", "Restaurante.db");
+        Console.WriteLine($"📍 BD esperada en: {dbPath}");
+        
         if (app.Environment.IsDevelopment())
         {
-            dbContext.Database.EnsureDeleted();  // Elimina si existe
-            dbContext.Database.EnsureCreated();  // Recrea con el esquema
-            Console.WriteLine("✓ Base de datos eliminada y recreada exitosamente");
+            // En desarrollo: elimina la BD y la recrea desde cero
+            try
+            {
+                Console.WriteLine("Eliminando base de datos existente...");
+                dbContext.Database.EnsureDeleted();
+                Console.WriteLine("✓ Base de datos eliminada");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"⚠ Error eliminando BD: {ex.Message}");
+            }
+
+            try
+            {
+                Console.WriteLine("Creando nueva base de datos...");
+                dbContext.Database.EnsureCreated();
+                Console.WriteLine("✓ Base de datos creada exitosamente");
+                
+                // Verificar que existe
+                if (File.Exists(dbPath))
+                {
+                    var fileInfo = new FileInfo(dbPath);
+                    Console.WriteLine($"✓ Archivo verificado: {dbPath}");
+                    Console.WriteLine($"📊 Tamaño: {fileInfo.Length} bytes");
+                }
+                else
+                {
+                    Console.WriteLine($"❌ ERROR: Archivo NO encontrado en {dbPath}");
+                    // Buscar dónde está
+                    var dbFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.db", SearchOption.AllDirectories);
+                    if (dbFiles.Length > 0)
+                    {
+                        Console.WriteLine("📁 Archivos .db encontrados en:");
+                        foreach (var f in dbFiles)
+                            Console.WriteLine($"   {f}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"✗ Error creando BD: {ex.Message}");
+                throw;
+            }
         }
         else
         {
             dbContext.Database.Migrate();
             Console.WriteLine("✓ Base de datos migrada exitosamente");
         }
+        
+        Console.WriteLine("===================================\n");
     }
     catch (Exception ex)
     {
@@ -66,8 +115,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

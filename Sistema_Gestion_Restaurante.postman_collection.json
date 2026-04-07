@@ -14,13 +14,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/swagger/index.html",
-              "protocol": "https",
+              "raw": "http://localhost:5087/swagger/index.html",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["swagger", "index.html"]
             },
-            "description": "1. Ejecuta la migración: dotnet ef database update\n2. Inicia la aplicación: dotnet run\n3. Ve a https://localhost:7101/swagger para ver la documentación automática"
+            "description": "1. Ejecuta la migración: dotnet ef database update\n2. Inicia la aplicación: dotnet run\n3. Ve a http://localhost:5087/swagger para ver la documentación automática"
           }
         }
       ]
@@ -155,10 +155,10 @@
               "raw": "{\n  \"platoId\": \"660e8400-e29b-41d4-a716-446655440001\",\n  \"cantidad\": 1,\n  \"precioUnitario\": 45.00\n}"
             },
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}", "detalles"]
             },
             "description": "Agrega otro plato a la misma orden"
@@ -170,10 +170,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}", "detalles"]
             },
             "description": "Obtiene todos los platos agregados a una orden"
@@ -190,10 +190,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/total",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}/detalles/total",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}", "detalles", "total"]
             },
             "description": "HU6: Calcula automáticamente el total de la orden sumando todos los subtotales (cantidad × precio) de los platos agregados."
@@ -252,10 +252,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}"]
             },
             "description": "Verifica que la orden esté en estado 'Completada'"
@@ -272,10 +272,10 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/api/ordenes",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/platos",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes"]
             },
             "description": "Obtiene el listado de todas las órdenes"
@@ -302,10 +302,10 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/cancelar",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}/completar",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}", "cancelar"]
             },
             "description": "Cancela una orden\n\nSolo se pueden cancelar órdenes en estado 'Pendiente'"
@@ -327,10 +327,10 @@
               "raw": "{\n  \"cantidad\": 3,\n  \"precioUnitario\": 30.00\n}"
             },
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}", "detalles", "550e8400-e29b-41d4-a716-446655440000"]
             },
             "description": "Actualiza la cantidad y/o precio de un detalle específico"
@@ -342,10 +342,10 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "https://localhost:7101/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000",
-              "protocol": "https",
+              "raw": "http://localhost:5087/api/ordenes/{{ordenId}}/detalles",
+              "protocol": "http",
               "host": ["localhost"],
-              "port": "7101",
+              "port": "5087",
               "path": ["api", "ordenes", "{{ordenId}}", "detalles", "550e8400-e29b-41d4-a716-446655440000"]
             },
             "description": "Elimina un plato específico de la orden"
