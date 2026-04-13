@@ -29,7 +29,10 @@ builder.Services.AddScoped<IDetalleOrdenRepository, DetalleOrdenRepository>();
 // 4. REGISTRAR LOS SERVICIOS
 builder.Services.AddScoped<IOrdenService, OrdenService>();
 builder.Services.AddScoped<IDetalleOrdenService, DetalleOrdenService>();
+builder.Services.AddScoped<IPlatoService, Plato_Service>(); // Servicio para tus HU1, HU2 y HU3
+
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -45,13 +48,13 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("\n=== DIAGNÓSTICO DE BASE DE DATOS ===");
         Console.WriteLine($"📍 Current Directory: {Directory.GetCurrentDirectory()}");
         Console.WriteLine($"📍 Connection String: {connectionString}");
-        
+
         var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "Database", "Restaurante.db");
         Console.WriteLine($"📍 BD esperada en: {dbPath}");
-        
+
         if (app.Environment.IsDevelopment())
         {
-            // En desarrollo: elimina la BD y la recrea desde cero
+            // En desarrollo: elimina la BD y la recrea desde cero (Útil para pruebas limpias)
             try
             {
                 Console.WriteLine("Eliminando base de datos existente...");
@@ -68,25 +71,12 @@ using (var scope = app.Services.CreateScope())
                 Console.WriteLine("Creando nueva base de datos...");
                 dbContext.Database.EnsureCreated();
                 Console.WriteLine("✓ Base de datos creada exitosamente");
-                
-                // Verificar que existe
+
                 if (File.Exists(dbPath))
                 {
                     var fileInfo = new FileInfo(dbPath);
                     Console.WriteLine($"✓ Archivo verificado: {dbPath}");
                     Console.WriteLine($"📊 Tamaño: {fileInfo.Length} bytes");
-                }
-                else
-                {
-                    Console.WriteLine($"❌ ERROR: Archivo NO encontrado en {dbPath}");
-                    // Buscar dónde está
-                    var dbFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.db", SearchOption.AllDirectories);
-                    if (dbFiles.Length > 0)
-                    {
-                        Console.WriteLine("📁 Archivos .db encontrados en:");
-                        foreach (var f in dbFiles)
-                            Console.WriteLine($"   {f}");
-                    }
                 }
             }
             catch (Exception ex)
@@ -100,7 +90,7 @@ using (var scope = app.Services.CreateScope())
             dbContext.Database.Migrate();
             Console.WriteLine("✓ Base de datos migrada exitosamente");
         }
-        
+
         Console.WriteLine("===================================\n");
     }
     catch (Exception ex)
@@ -121,4 +111,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-

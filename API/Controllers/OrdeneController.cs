@@ -166,7 +166,7 @@ namespace Sistema_Gestion_Restaurante.API.Controllers
         /// Actualizar el total de una orden manualmente
         /// </summary>
         [HttpPut("{id}/total")]
-        public async Task<ActionResult> UpdateOrderTotal(Guid id, [FromBody] UpdateOrdenTotalDto updateDto, CancellationToken ct = default)
+        public async Task<ActionResult> UpdateOrderTotal(Guid id, [FromBody] Sistema_Gestion_Restaurante.API.DTOs.UpdateOrdenTotalDto updateDto, CancellationToken ct = default)
         {
             try
             {

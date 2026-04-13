@@ -15,6 +15,7 @@ namespace Sistema_Gestion_Restaurante.Infrastructure.Persistence
         public DbSet<Categoria> Categorias => Set<Categoria>();
         public DbSet<Orden> Ordenes => Set<Orden>();
         public DbSet<Detalle_orden> DetallesOrden => Set<Detalle_orden>();
+        public DbSet<Pago> Pagos { get; set; }
 
         // Este método es para configurar detalles especiales (como en la guía del profe)
         protected override void OnModelCreating(ModelBuilder modelBuilder)

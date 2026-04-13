@@ -1,10 +1,6 @@
-namespace Sistema_Gestion_Restaurante.API.DTOs
+﻿namespace Sistema_Gestion_Restaurante.API.DTOs;
+
+public class UpdateOrdenTotalDto
 {
-    /// <summary>
-    /// DTO para actualizar el total de una orden
-    /// </summary>
-    public class UpdateOrdenTotalDto
-    {
-        public decimal Total { get; set; }
-    }
+    public decimal Total { get; set; }
 }

@@ -1,4 +1,4 @@
-# 🚀 Guía para Empezar a Usar la API
+# Guía para Empezar a Usar la API
 
 ## Pre-requisitos
 
@@ -194,4 +194,4 @@ dotnet dev-certs https --trust
 
 ---
 
-**¡Listo para empezar!** 🎉
+**¡Listo para empezar!** 
