@@ -1,0 +1,181 @@
+### Sistema Gestión Restaurante - API Testing
+### Historias de Usuario 4-7
+### Usa esta colección con la extensión REST Client de VS Code
+
+@baseUrl = https://localhost:7101
+@ordenId = 
+
+### ========================================
+### 🏪 SETUP - INSTRUCCIONES
+### ========================================
+
+### 1. Ejecutar la migración
+# Abre un terminal y ejecuta:
+# dotnet ef database update
+# O usa: .\aplicar-migracion.ps1
+
+### 2. Iniciar la aplicación
+# dotnet run
+
+### 3. Los endpoints estarán disponibles en:
+# https://localhost:7101/api/...
+
+### Ver documentación Swagger:
+# https://localhost:7101/swagger/index.html
+
+###
+
+### ========================================
+### 📋 HU4 - CREAR ORDEN
+### ========================================
+
+### Crear una nueva orden
+# Guarda el ID en @ordenId para usar en siguientes requests
+POST {{baseUrl}}/api/ordenes
+Content-Type: application/json
+
+{
+  "numeroMesa": "5"
+}
+
+###
+
+### ========================================
+### 🍽️ HU5 - AGREGAR PLATOS A LA ORDEN
+### ========================================
+
+### IMPORTANTE: Primero obtén los IDs de los platos
+GET {{baseUrl}}/api/platos
+Accept: application/json
+
+###
+
+### Agregar primer plato a la orden
+POST {{baseUrl}}/api/ordenes/{{ordenId}}/detalles
+Content-Type: application/json
+
+{
+  "platoId": "550e8400-e29b-41d4-a716-446655440000",
+  "cantidad": 2,
+  "precioUnitario": 25.50
+}
+
+###
+
+### Agregar segundo plato a la orden
+POST {{baseUrl}}/api/ordenes/{{ordenId}}/detalles
+Content-Type: application/json
+
+{
+  "platoId": "660e8400-e29b-41d4-a716-446655440001",
+  "cantidad": 1,
+  "precioUnitario": 45.00
+}
+
+###
+
+### Listar todos los detalles de la orden
+GET {{baseUrl}}/api/ordenes/{{ordenId}}/detalles
+Accept: application/json
+
+###
+
+### Obtener un detalle específico
+GET {{baseUrl}}/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000
+Accept: application/json
+
+###
+
+### ========================================
+### 💰 HU6 - CALCULAR TOTAL AUTOMÁTICAMENTE
+### ========================================
+
+### Obtener el total de la orden (suma automática)
+GET {{baseUrl}}/api/ordenes/{{ordenId}}/detalles/total
+Accept: application/json
+
+###
+
+### Obtener cantidad total de items en la orden
+GET {{baseUrl}}/api/ordenes/{{ordenId}}/detalles/items-count
+Accept: application/json
+
+###
+
+### ========================================
+### ✅ HU7 - CERRAR/COMPLETAR ORDEN
+### ========================================
+
+### Completar la orden (cambiar estado a Completada)
+POST {{baseUrl}}/api/ordenes/{{ordenId}}/completar
+Content-Type: application/json
+
+###
+
+### Obtener información de la orden completada
+GET {{baseUrl}}/api/ordenes/{{ordenId}}
+Accept: application/json
+
+###
+
+### ========================================
+### 📊 ENDPOINTS ADICIONALES ÚTILES
+### ========================================
+
+### Obtener todas las órdenes
+GET {{baseUrl}}/api/ordenes
+Accept: application/json
+
+###
+
+### Filtrar órdenes por estado (Pendiente, Completada, Cancelada)
+GET {{baseUrl}}/api/ordenes/estado/Completada
+Accept: application/json
+
+###
+
+### Cancelar una orden
+POST {{baseUrl}}/api/ordenes/{{ordenId}}/cancelar
+Content-Type: application/json
+
+###
+
+### Actualizar total manualmente
+PUT {{baseUrl}}/api/ordenes/{{ordenId}}/total
+Content-Type: application/json
+
+{
+  "total": 150.00
+}
+
+###
+
+### Actualizar cantidad/precio de un detalle
+PUT {{baseUrl}}/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+{
+  "cantidad": 3,
+  "precioUnitario": 30.00
+}
+
+###
+
+### Eliminar un detalle (plato) de la orden
+DELETE {{baseUrl}}/api/ordenes/{{ordenId}}/detalles/550e8400-e29b-41d4-a716-446655440000
+Content-Type: application/json
+
+###
+
+### ========================================
+### 💡 FLUJO RECOMENDADO DE PRUEBA
+### ========================================
+
+### 1. Ejecuta: Crear una nueva orden
+### 2. Copia el ID de respuesta y actualiza @ordenId arriba
+### 3. Ejecuta: Agregar primer plato
+### 4. Ejecuta: Agregar segundo plato
+### 5. Ejecuta: Listar detalles (verás los 2 platos)
+### 6. Ejecuta: Obtener total (verá suma automática)
+### 7. Ejecuta: Completar la orden
+### 8. Verifica que orden está en estado "Completada"
