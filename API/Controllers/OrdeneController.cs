@@ -19,22 +19,31 @@ namespace Sistema_Gestion_Restaurante.API.Controllers
             _detalleOrdenService = detalleOrdenService;
         }
 
+        #region Consultas (GET)
+
         /// <summary>
-        /// HU4: Crear una nueva orden
+        /// Obtener todas las órdenes
         /// </summary>
-        /// <param name="createOrdenDto">Datos para crear la orden (número de mesa)</param>
-        /// <returns>Id de la orden creada</returns>
-        [HttpPost]
-        public async Task<ActionResult<Guid>> CreateOrder([FromBody] CreateOrdenDto createOrdenDto, CancellationToken ct = default)
+        [HttpGet]
+        public async Task<ActionResult<IReadOnlyList<OrdenDto>>> GetAllOrders(CancellationToken ct = default)
         {
             try
             {
-                var ordenId = await _ordenService.CreateOrderAsync(createOrdenDto.NumeroMesa, ct);
-                return CreatedAtAction(nameof(GetOrderById), new { id = ordenId }, new { id = ordenId });
+                var ordenes = await _ordenService.GetAllOrdersAsync(ct);
+                var ordenesDto = ordenes.Select(o => new OrdenDto
+                {
+                    Id = o.Id,
+                    Fecha = o.Fecha,
+                    Total = o.Total,
+                    NumeroMesa = o.NumeroMesa,
+                    Estado = o.Estado
+                }).ToList();
+
+                return Ok(ordenesDto);
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -68,14 +77,35 @@ namespace Sistema_Gestion_Restaurante.API.Controllers
         }
 
         /// <summary>
-        /// Obtener todas las órdenes
+        /// HU6: Obtener el total de una orden
         /// </summary>
-        [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<OrdenDto>>> GetAllOrders(CancellationToken ct = default)
+        [HttpGet("{id}/total")]
+        public async Task<ActionResult<decimal>> GetOrderTotal(Guid id, CancellationToken ct = default)
         {
             try
             {
-                var ordenes = await _ordenService.GetAllOrdersAsync(ct);
+                var total = await _detalleOrdenService.CalculateTotalByOrderAsync(id, ct);
+                return Ok(new { total = total });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Obtener órdenes por estado
+        /// </summary>
+        [HttpGet("estado/{estado}")]
+        public async Task<ActionResult<IReadOnlyList<OrdenDto>>> GetOrdersByStatus(string estado, CancellationToken ct = default)
+        {
+            try
+            {
+                var ordenes = await _ordenService.GetOrdersByStatusAsync(estado, ct);
                 var ordenesDto = ordenes.Select(o => new OrdenDto
                 {
                     Id = o.Id,
@@ -93,8 +123,29 @@ namespace Sistema_Gestion_Restaurante.API.Controllers
             }
         }
 
+        #endregion
+
+        #region Acciones (POST)
+
         /// <summary>
-        /// HU7: Cerrar una orden (cambiar estado a Completada)
+        /// HU4: Crear una nueva orden
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<Guid>> CreateOrder([FromBody] CreateOrdenDto createOrdenDto, CancellationToken ct = default)
+        {
+            try
+            {
+                var ordenId = await _ordenService.CreateOrderAsync(createOrdenDto.NumeroMesa, ct);
+                return CreatedAtAction(nameof(GetOrderById), new { id = ordenId }, new { id = ordenId });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// HU7: Cerrar una orden (Completada)
         /// </summary>
         [HttpPost("{id}/completar")]
         public async Task<ActionResult> CompleteOrder(Guid id, CancellationToken ct = default)
@@ -141,75 +192,6 @@ namespace Sistema_Gestion_Restaurante.API.Controllers
             }
         }
 
-        /// <summary>
-        /// HU6: Obtener el total de una orden
-        /// </summary>
-        [HttpGet("{id}/total")]
-        public async Task<ActionResult<decimal>> GetOrderTotal(Guid id, CancellationToken ct = default)
-        {
-            try
-            {
-                var total = await _detalleOrdenService.CalculateTotalByOrderAsync(id, ct);
-                return Ok(new { total = total });
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Actualizar el total de una orden manualmente
-        /// </summary>
-        [HttpPut("{id}/total")]
-        public async Task<ActionResult> UpdateOrderTotal(Guid id, [FromBody] Sistema_Gestion_Restaurante.API.DTOs.UpdateOrdenTotalDto updateDto, CancellationToken ct = default)
-        {
-            try
-            {
-                var result = await _ordenService.UpdateOrderTotalAsync(id, updateDto.Total, ct);
-                if (!result)
-                    return NotFound(new { message = $"La orden con ID {id} no fue encontrada." });
-
-                return Ok(new { message = "El total fue actualizado exitosamente." });
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Obtener órdenes por estado
-        /// </summary>
-        [HttpGet("estado/{estado}")]
-        public async Task<ActionResult<IReadOnlyList<OrdenDto>>> GetOrdersByStatus(string estado, CancellationToken ct = default)
-        {
-            try
-            {
-                var ordenes = await _ordenService.GetOrdersByStatusAsync(estado, ct);
-                var ordenesDto = ordenes.Select(o => new OrdenDto
-                {
-                    Id = o.Id,
-                    Fecha = o.Fecha,
-                    Total = o.Total,
-                    NumeroMesa = o.NumeroMesa,
-                    Estado = o.Estado
-                }).ToList();
-
-                return Ok(ordenesDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
+        #endregion
     }
 }
